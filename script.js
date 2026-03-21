@@ -94,12 +94,109 @@ window.addEventListener('scroll', handleScrollSequence);
 // Initial check
 handleScrollSequence();
 
-// --- Expanding Card Logic ---
-const allExpandableCards = document.querySelectorAll('.info-card, .scroll-card');
+// --- Shared reader panels for grouped cards ---
+const cardGroups = document.querySelectorAll('.card-container');
 
-allExpandableCards.forEach(card => {
+cardGroups.forEach((group, groupIndex) => {
+    const groupedCards = Array.from(group.querySelectorAll(':scope > .info-card'));
+
+    if (!groupedCards.length) return;
+
+    group.dataset.cardCount = String(Math.min(groupedCards.length, 3));
+
+    const readerPanel = document.createElement('div');
+    const readerPanelId = `card-reader-panel-${groupIndex + 1}`;
+
+    readerPanel.className = 'card-reader-panel';
+    readerPanel.id = readerPanelId;
+    readerPanel.innerHTML = `
+        <div class="card-reader-panel-inner">
+            <div class="card-reader-content">
+                <span class="card-reader-label">Expanded reading</span>
+                <h4 class="card-reader-title"></h4>
+                <div class="card-reader-body"></div>
+            </div>
+        </div>
+    `;
+
+    group.appendChild(readerPanel);
+
+    const readerTitle = readerPanel.querySelector('.card-reader-title');
+    const readerBody = readerPanel.querySelector('.card-reader-body');
+    let activeCard = null;
+
+    const closeReader = () => {
+        if (!activeCard) return;
+
+        activeCard.classList.remove('expanded');
+        activeCard.setAttribute('aria-expanded', 'false');
+        activeCard = null;
+        readerPanel.classList.remove('open');
+    };
+
+    const openReader = card => {
+        const title = card.querySelector('h3')?.textContent?.trim() || '';
+        const summary = card.querySelector(':scope > p')?.outerHTML || '';
+        const details = card.querySelector('.hidden-content')?.innerHTML?.trim() || '';
+
+        if (!details) return;
+
+        if (activeCard && activeCard !== card) {
+            activeCard.classList.remove('expanded');
+            activeCard.setAttribute('aria-expanded', 'false');
+        }
+
+        readerTitle.textContent = title;
+        readerBody.innerHTML = `${summary}${details}`;
+        card.classList.add('expanded');
+        card.setAttribute('aria-expanded', 'true');
+        activeCard = card;
+        readerPanel.classList.add('open');
+    };
+
+    groupedCards.forEach(card => {
+        const hiddenContent = card.querySelector('.hidden-content')?.textContent?.trim();
+
+        if (!hiddenContent) return;
+
+        card.classList.add('shared-reader-card');
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-controls', readerPanelId);
+        card.setAttribute('aria-expanded', 'false');
+
+        if (!card.querySelector('.card-indicator')) {
+            const indicator = document.createElement('span');
+            indicator.className = 'card-indicator';
+            indicator.textContent = 'Expand';
+            indicator.setAttribute('aria-hidden', 'true');
+            card.appendChild(indicator);
+        }
+
+        const toggleReader = () => {
+            if (activeCard === card) {
+                closeReader();
+                return;
+            }
+
+            openReader(card);
+        };
+
+        card.addEventListener('click', toggleReader);
+        card.addEventListener('keydown', event => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+
+            event.preventDefault();
+            toggleReader();
+        });
+    });
+});
+
+// --- Standalone expanding cards ---
+const standaloneExpandableCards = document.querySelectorAll('.info-card:not(.shared-reader-card), .scroll-card');
+
+standaloneExpandableCards.forEach(card => {
     card.addEventListener('click', () => {
-        // Toggle the expanded class on the clicked card
         card.classList.toggle('expanded');
     });
 });
