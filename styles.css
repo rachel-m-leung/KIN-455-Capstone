@@ -96,38 +96,127 @@ section {
   z-index: 1;
 }
 
-/* Hand Image Layout - Touch section */
-#cognition-duplicate {
+.intro-inner {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.intro-logo {
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.intro-text {
+  display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  align-items: flex-end;
+}
+
+/* ================================================================
+   ILLUSTRATED SECTIONS
+   Shared layout for all four text cards with a decorative image
+   sitting above and overlapping the top of the panel.
+   ================================================================ */
+
+/* --- Shared base styles (do not edit per-section behaviour here) --- */
+.illustrated-section {
+  flex-direction: column;
+  justify-content: flex-start;
   gap: 0;
   padding: 20px 6% 80px;
 }
 
-.hand-image-container {
-  width: min(55vw, 1200px);
+.section-image {
   pointer-events: none;
   position: relative;
-  z-index: 1;
-  margin-bottom: -140px;
-  align-self: flex-end;
-  margin-right: 40%;
+  z-index: 1;        /* below panel by default; override per-section if needed */
 }
 
-.hand-image {
+.section-image img {
   width: 100%;
   height: auto;
   display: block;
-  transform: rotate(5deg);
 }
 
-#cognition-duplicate .panel {
+.illustrated-section .panel {
   width: 100%;
   max-width: 1100px;
   margin: 0;
   position: relative;
   z-index: 2;
+}
+
+/* ----------------------------------------------------------------
+   1. TOUCH  (#cognition-duplicate)
+   Card: RIGHT  |  Image: top-right, rotated
+   ---------------------------------------------------------------- */
+#cognition-duplicate {
+  align-items: flex-end;       /* pins card + image to the right */
+  justify-content: flex-end;
+}
+
+#cognition-duplicate .section-image {
+  align-self: flex-end;
+  width: min(55vw, 1200px);    /* ← image size */
+  margin-right: 40%;           /* ← horizontal position (decrease → more right) */
+  margin-bottom: -140px;       /* ← card overlap (more negative → more hidden) */
+}
+
+#cognition-duplicate .section-image img {
+  transform: rotate(5deg);     /* ← rotation */
+}
+
+/* ----------------------------------------------------------------
+   2. SKIN-TO-SKIN  (#skin-to-skin)
+   Card: LEFT  |  Image: top-left
+   ---------------------------------------------------------------- */
+#skin-to-skin {
+  align-items: flex-start;     /* pins card + image to the left */
+  margin-top: 300px;           /* ← gap above this section */
+}
+
+#skin-to-skin .section-image {
+  align-self: flex-start;
+  width: min(55vw, 1000px);    /* ← image size */
+  margin-left: 25%;            /* ← horizontal position (increase → more right) */
+  margin-top: -200px;          /* ← vertical lift (more negative → higher) */
+  margin-bottom: -40px;        /* ← card overlap (more negative → more hidden) */
+}
+
+/* ----------------------------------------------------------------
+   3. COGNITIVE IMPACTS  (#cognition)
+   Card: RIGHT  |  Image: top-right, in front of card
+   ---------------------------------------------------------------- */
+#cognition {
+  align-items: flex-end;       /* pins card + image to the right */
+  margin-top: 100px;           /* ← gap above this section */
+}
+
+#cognition .section-image {
+  align-self: flex-end;
+  width: min(55vw, 900px);     /* ← image size */
+  margin-right: -5%;           /* ← horizontal position (decrease → more right) */
+  margin-bottom: -120px;       /* ← card overlap (more negative → more hidden) */
+  z-index: 3;                  /* ← in front of panel */
+}
+
+/* ----------------------------------------------------------------
+   4. PROPRIOCEPTION  (#proprioception)
+   Card: LEFT  |  Image: top-left, in front of card
+   ---------------------------------------------------------------- */
+#proprioception {
+  align-items: flex-start;     /* pins card + image to the left */
+  margin-top: 50px;            /* ← gap above this section */
+}
+
+#proprioception .section-image {
+  align-self: flex-start;
+  width: min(50vw, 900px);     /* ← image size */
+  margin-left: 25%;            /* ← horizontal position (increase → more right) */
+  margin-bottom: -100px;       /* ← card overlap (more negative → more hidden) */
+  z-index: 3;                  /* ← in front of panel */
 }
 
 #intro .intro-baby-image {
@@ -166,46 +255,8 @@ section {
   }
 
 /* Side Image Layout - Skin to Skin */
-#skin-to-skin {
-  position: relative;
-  isolation: isolate;
-  padding: 20px 6% 80px;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
-  gap: 0;
-  padding-top: -1200px;
-  margin-top: 200px;
-}
-
-.side-image-container {
-  align-self: flex-start;
-  margin-left: 22%;
-  width: min(55vw, 1000px);
-  pointer-events: none;
-  position: relative;
-  z-index: 1;
-  margin-bottom: -250px;
-}
-
-.side-image {
-  width: 100%;
-  height: auto;
-  border-radius: 0;
-  box-shadow: none;
-  display: block;
-}
-
 .skin-header {
-    margin-bottom: 40px;
-}
-
-#skin-to-skin .panel {
-    width: 100%;
-    max-width: 1100px;
-    margin: 0;
-    position: relative;
-    z-index: 2;
+  margin-bottom: 40px;
 }
 
 /* Wide Card Style */
@@ -463,16 +514,6 @@ p {
 
 
 /* Responsive adjustments */
-@media (max-width: 1100px) {
-    #skin-to-skin {
-        padding: 80px 24px;
-    }
-
-    .side-image-container {
-        width: min(60vw, 560px);
-    }
-}
-
 @media (max-width: 768px) {
     section {
         padding: 60px 15px;
@@ -486,16 +527,21 @@ p {
         font-size: 2rem;
     }
 
-    #skin-to-skin {
+    .illustrated-section {
         padding: 20px 15px 60px;
+        align-items: center !important;    /* stack centrally on mobile */
     }
 
-    .side-image-container {
-        width: min(75vw, 380px);
-        margin-bottom: -60px;
+    .section-image {
+        width: min(75vw, 380px) !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: -60px !important;
+        align-self: center !important;
     }
 
-    #skin-to-skin .panel {
+    .illustrated-section .panel {
         max-width: 100%;
     }
 
