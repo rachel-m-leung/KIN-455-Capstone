@@ -47,8 +47,8 @@ cards.forEach(card => observer.observe(card));
 
 
 // --- Scroll Sequence Logic ---
-const scrollSection = document.querySelector('.scroll-sequence');
-const scrollCards = document.querySelectorAll('.scroll-card');
+const scrollSection = document.getElementById('brain-scroll-section');
+const scrollCards = scrollSection ? Array.from(scrollSection.querySelectorAll('.scroll-card')) : [];
 
 function handleScrollSequence() {
     if (!scrollSection) return;
@@ -70,18 +70,10 @@ function handleScrollSequence() {
     // Clamp progress between 0 and 1
     progress = Math.max(0, Math.min(1, progress));
 
-    // Show cards based on progress stages
-    // We have 4 cards, so we can split the progress into segments
-    // Card 1: 0.1 - 0.25
-    // Card 2: 0.3 - 0.45
-    // Card 3: 0.5 - 0.65
-    // Card 4: 0.7 - 0.85
-    
-    // Thresholds for each card
-    const thresholds = [0.1, 0.3, 0.5, 0.7];
+    scrollCards.forEach(card => {
+        const threshold = Number(card.dataset.threshold || 0);
 
-    scrollCards.forEach((card, index) => {
-        if (progress > thresholds[index]) {
+        if (progress > threshold) {
             card.classList.add('active');
         } else {
             card.classList.remove('active');
@@ -93,6 +85,70 @@ function handleScrollSequence() {
 window.addEventListener('scroll', handleScrollSequence);
 // Initial check
 handleScrollSequence();
+
+// --- Shared reader for brain scroll cards ---
+const scrollReaderPanel = document.getElementById('brain-scroll-reader');
+
+if (scrollSection && scrollReaderPanel) {
+    const scrollReaderTitle = scrollReaderPanel.querySelector('.scroll-reader-title');
+    const scrollReaderBody = scrollReaderPanel.querySelector('.scroll-reader-body');
+    const expandableScrollCards = scrollCards.filter(card => card.querySelector('.hidden-content'));
+    let activeScrollCard = null;
+
+    const closeScrollReader = () => {
+        if (!activeScrollCard) return;
+
+        activeScrollCard.classList.remove('expanded');
+        activeScrollCard.setAttribute('aria-expanded', 'false');
+        activeScrollCard = null;
+        scrollReaderPanel.classList.remove('open');
+    };
+
+    const openScrollReader = card => {
+        const title = card.querySelector('h3, h2')?.textContent?.trim() || '';
+        const summary = card.querySelector(':scope > p')?.outerHTML || '';
+        const details = card.querySelector('.hidden-content')?.innerHTML?.trim() || '';
+
+        if (!details) return;
+
+        if (activeScrollCard && activeScrollCard !== card) {
+            activeScrollCard.classList.remove('expanded');
+            activeScrollCard.setAttribute('aria-expanded', 'false');
+        }
+
+        scrollReaderTitle.textContent = title;
+        scrollReaderBody.innerHTML = `${summary}${details}`;
+        card.classList.add('expanded');
+        card.setAttribute('aria-expanded', 'true');
+        activeScrollCard = card;
+        scrollReaderPanel.classList.add('open');
+    };
+
+    expandableScrollCards.forEach(card => {
+        card.classList.add('has-details');
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-controls', 'brain-scroll-reader');
+        card.setAttribute('aria-expanded', 'false');
+
+        const toggleReader = () => {
+            if (activeScrollCard === card) {
+                closeScrollReader();
+                return;
+            }
+
+            openScrollReader(card);
+        };
+
+        card.addEventListener('click', toggleReader);
+        card.addEventListener('keydown', event => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+
+            event.preventDefault();
+            toggleReader();
+        });
+    });
+}
 
 // --- Shared reader panels for grouped cards ---
 const cardGroups = document.querySelectorAll('.card-container');
@@ -193,7 +249,7 @@ cardGroups.forEach((group, groupIndex) => {
 });
 
 // --- Standalone expanding cards ---
-const standaloneExpandableCards = document.querySelectorAll('.info-card:not(.shared-reader-card), .scroll-card');
+const standaloneExpandableCards = document.querySelectorAll('.info-card:not(.shared-reader-card)');
 
 standaloneExpandableCards.forEach(card => {
     card.addEventListener('click', () => {

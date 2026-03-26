@@ -219,6 +219,23 @@ section {
   z-index: 3;                  /* ← in front of panel */
 }
 
+/* ----------------------------------------------------------------
+   5. CURRENT CLINICAL APPLICATIONS  (#clinical-applications)
+   Card: RIGHT  |  Image: top-left, slightly overlapping
+   ---------------------------------------------------------------- */
+#clinical-applications {
+  align-items: flex-end;
+  margin-top: 80px;
+}
+
+#clinical-applications .section-image {
+  align-self: flex-start;
+  width: min(55vw, 900px);
+  margin-left: 30%;
+  margin-bottom: -60px;
+  z-index: 3;
+}
+
 #intro .intro-baby-image {
   position: absolute;
   top: 50%;
@@ -476,7 +493,7 @@ p {
 
 .scroll-card {
   position: absolute;
-  width: 280px;
+  width: 320px;
   padding: 25px;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 18px;
@@ -492,21 +509,130 @@ p {
   color: #2c3e50;
 }
 
+.scroll-card.has-details {
+  cursor: pointer;
+}
+
+.scroll-card.has-details::after {
+  content: "->";
+  position: absolute;
+  right: 18px;
+  bottom: 14px;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: rgba(72, 86, 98, 0.42);
+  pointer-events: none;
+}
+
+.scroll-card.expanded {
+  box-shadow: 0 16px 42px rgba(37, 56, 72, 0.18);
+}
+
+.scroll-card .hidden-content {
+  display: none;
+}
+
+.scroll-card-label {
+  display: inline-block;
+  margin-bottom: 12px;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(74, 91, 107, 0.56);
+}
+
+.scroll-title-card {
+  width: min(620px, 50vw);
+  padding: 28px 30px;
+}
+
+.scroll-title-card h2 {
+  font-size: clamp(2rem, 3vw, 3.15rem);
+  line-height: 0.98;
+  color: #233748;
+  margin-bottom: 14px;
+}
+
+.scroll-title-card p {
+  max-width: none;
+  line-height: 1.7;
+}
+
 /* Initial positions for cards */
 .left-card {
-  left: 10%;
+  left: 5%;
   transform: translateX(-50px) translateY(0);
 }
 
 .right-card {
-  right: 10%;
+  right: 5%;
   transform: translateX(50px) translateY(0);
+}
+
+.top-right-card {
+  right: 4%;
+  top: 3%;
+  transform: translateX(50px) translateY(-16px);
 }
 
 /* Active State for Scrolling Cards */
 .scroll-card.active {
   opacity: 1;
   transform: translateX(0) translateY(0);
+}
+
+.scroll-reader-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(56vw, 780px);
+  max-height: 68vh;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.94);
+  transition: opacity 0.3s ease, transform 0.35s ease;
+  z-index: 30;
+}
+
+.scroll-reader-panel.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.scroll-reader-panel-inner {
+  max-height: 68vh;
+  overflow: auto;
+  padding: 30px 34px;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(118, 141, 160, 0.2);
+  box-shadow: 0 24px 48px rgba(26, 43, 55, 0.16);
+  backdrop-filter: blur(16px);
+}
+
+.scroll-reader-label {
+  display: inline-block;
+  margin-bottom: 10px;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(67, 84, 97, 0.6);
+}
+
+.scroll-reader-title {
+  font-size: 1.8rem;
+  color: #223545;
+  margin-bottom: 12px;
+}
+
+.scroll-reader-body > * + * {
+  margin-top: 16px;
+}
+
+.scroll-reader-body p {
+  line-height: 1.85;
+  color: #334857;
 }
 
 /* Card positioning variants to spread them out vertically */
@@ -608,13 +734,37 @@ p {
   }
 
   .scroll-card {
-    width: 42%;
+    width: 45%;
     padding: 12px;
     font-size: 0.85rem;
   }
 
-  .left-card { left: 4%; }
-  .right-card { right: 4%; }
+  .scroll-title-card {
+    width: 62%;
+    padding: 18px 16px;
+  }
+
+  .scroll-title-card h2 {
+    font-size: 1.55rem;
+  }
+
+  .top-right-card {
+    top: 4%;
+    right: 4%;
+  }
+
+  .scroll-reader-panel {
+    width: 78vw;
+    max-height: 54vh;
+  }
+
+  .scroll-reader-panel-inner {
+    max-height: 54vh;
+    padding: 18px 16px;
+  }
+
+  .left-card { left: 2%; }
+  .right-card { right: 2%; }
 }
 
 /* Modal Styles */
@@ -691,7 +841,8 @@ p {
 }
 
 /* Make cards clickable */
-.info-card, .scroll-card {
+.info-card,
+.scroll-card.has-details {
   cursor: pointer;
 }
 
@@ -699,35 +850,37 @@ p {
   box-shadow: 0 15px 35px rgba(0,0,0,0.12);
 }
 
-.scroll-card:hover {
+.scroll-card.has-details:hover {
   box-shadow: 0 15px 35px rgba(0,0,0,0.18);
 }
 
 
 /* Expanding Cards */
-.info-card, .scroll-card {
+.info-card {
   cursor: pointer;
   transition: all 0.4s ease;
   overflow: hidden; /* Hide the extra content when not expanded */
+}
+
+.scroll-card.has-details {
+  overflow: hidden;
 }
 
 .info-card:hover {
   box-shadow: 0 15px 35px rgba(0,0,0,0.12);
 }
 
-.scroll-card:hover {
+.scroll-card.has-details:hover {
   box-shadow: 0 15px 35px rgba(0,0,0,0.18);
 }
 
-.scroll-card .hidden-content,
 .info-card:not(.shared-reader-card) .hidden-content {
   max-height: 0;
   opacity: 0;
   transition: max-height 0.4s ease, opacity 0.4s ease, margin-top 0.4s ease;
 }
 
-.info-card:not(.shared-reader-card).expanded .hidden-content,
-.scroll-card.expanded .hidden-content {
+.info-card:not(.shared-reader-card).expanded .hidden-content {
   max-height: 500px; /* Arbitrary large height to allow content to expand */
   opacity: 1;
   margin-top: 15px;
