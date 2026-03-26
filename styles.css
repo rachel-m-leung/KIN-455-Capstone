@@ -231,7 +231,7 @@ section {
 #clinical-applications .section-image {
   align-self: flex-start;
   width: min(55vw, 900px);
-  margin-left: 30%;
+  margin-left: 40%;
   margin-bottom: -60px;
   z-index: 3;
 }
